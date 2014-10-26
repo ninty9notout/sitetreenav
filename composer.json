@@ -1,0 +1,14 @@
+{
+	"name": "ninty9notout/sitetreenav",
+	"description": "An extension which provides the functionality to add nested <code><ul></code> SiteTree menus into the template.",
+	"type": "silverstripe-module",
+	"keywords": ["silverstripe", "sitetreenav"],
+	"authors": [{
+		"name": "Hiren Patel",
+		"email": "me@hieroishere.com"
+	}],
+	"require": {
+		"silverstripe/framework": ">=3.1.0",
+		"silverstripe/cms": ">=3.1.0"
+	}
+}
