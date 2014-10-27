@@ -40,7 +40,7 @@
  * "About Us" section of the website.
  *
  * @author Hiren Patel <me@hieroishere.com>
- * @link http://github.com/ninty9notout/silverstripe-sitetreenav
+ * @link http://github.com/ninty9notout/sitetreenav
  */
 /**
  * class SiteTreeNavigation
