@@ -50,108 +50,112 @@
  * @author Mark James <mail@mark.james.name>
  * @link https://github.com/markjames/silverstripe-nestedmenu
  */
-class SiteTreeNavigation extends DataExtension {
-	/**
-	 * The format for a single item within the menu.
-	 * This can be overridden by using {@link SiteTreeNavigation::$list_item_format} in the config
-	 * file to alter the appearance of the output.
-	 *
-	 * The following directives are used when building the menu and must be provided:
-	 * - %1$s The page title
-	 * - %2$s The page link
-	 * - %3$s The classes added to the list item
-	 * - %4$s The code for any nested sub-menus
-	 * 
-	 * @config
-	 * @var string
-	 */
-	protected static $list_item_format = '<li class="%3$s"><a href="%2$s">%1$s</a>%4$s</li>';
+class SiteTreeNavigation extends DataExtension
+{
+    /**
+     * The format for a single item within the menu.
+     * This can be overridden by using {@link SiteTreeNavigation::$list_item_format} in the config
+     * file to alter the appearance of the output.
+     *
+     * The following directives are used when building the menu and must be provided:
+     * - %1$s The page title
+     * - %2$s The page link
+     * - %3$s The classes added to the list item
+     * - %4$s The code for any nested sub-menus
+     * 
+     * @config
+     * @var string
+     */
+    protected static $list_item_format = '<li class="%3$s"><a href="%2$s">%1$s</a>%4$s</li>';
 
-	/**
-	 * Generates the HTML for a nested menu for the current section.
-	 *
-	 * @return string
-	 */
-	public function SiteTreeNav() {
-		// Use the current page
-		$parent = $this->owner;
+    /**
+     * Generates the HTML for a nested menu for the current section.
+     *
+     * @return string
+     */
+    public function SiteTreeNav()
+    {
+        // Use the current page
+        $parent = $this->owner;
 
-		// Find the top-most parent section of the current page
-		while($parent->ParentID != 0) {
-			$parent = $parent->Parent;
-		}
+        // Find the top-most parent section of the current page
+        while ($parent->ParentID != 0) {
+            $parent = $parent->Parent;
+        }
 
-		// Fetch the children of top-most parent section
-		$children = $this->childrenForSiteTreeList($parent);
+        // Fetch the children of top-most parent section
+        $children = $this->childrenForSiteTreeList($parent);
 
-		// Nothing to see here, move along - this should never happen
-		if(!$children) {
-			return false;
-		}
+        // Nothing to see here, move along - this should never happen
+        if (!$children) {
+            return false;
+        }
 
-		return $this->generateSiteTreeList($children);
-	}
+        return $this->generateSiteTreeList($children);
+    }
 
-	/**
-	 * Generate an <code><ul></code> containing each item in the given list of pages, and recurse 
-	 * down the structure for the current section.
-	 *
-	 * @param DataList The {@link DataList} of pages to include in the list at this level
-	 * @param int The level of the SiteTree the current iteration represents
-	 * @return string
-	 */
-	private function generateSiteTreeList($pages, $level = 1) {
-		// Open the container tag
-		$section = $level == 1 ? '<ul class="site-tree-nav">' : '<ul>';
+    /**
+     * Generate an <code><ul></code> containing each item in the given list of pages, and recurse 
+     * down the structure for the current section.
+     *
+     * @param DataList The {@link DataList} of pages to include in the list at this level
+     * @param int The level of the SiteTree the current iteration represents
+     * @return string
+     */
+    private function generateSiteTreeList($pages, $level = 1)
+    {
+        // Open the container tag
+        $section = $level == 1 ? '<ul class="site-tree-nav">' : '<ul>';
 
-		// Loop through the given list of pages
-		foreach($pages as $page) {
-			$classes = array();
+        // Loop through the given list of pages
+        foreach ($pages as $page) {
+            $classes = array();
 
-			// Add the class "section" if the page viewed is an descendant of this page
-			if($page->isSection()) {
-				$classes[] = 'section';
-			}
+            // Add the class "section" if the page viewed is an descendant of this page
+            if ($page->isSection()) {
+                $classes[] = 'section';
+            }
 
-			// Add the class "active" if the page viewed is this page
-			if($page->isCurrent()) {
-				$classes[] = 'active';
-			}
+            // Add the class "active" if the page viewed is this page
+            if ($page->isCurrent()) {
+                $classes[] = 'active';
+            }
 
-			// Empty var to store any sub-menus
-			$subSection = null;
+            // Empty var to store any sub-menus
+            $subSection = null;
 
-			// Fetch the children for this page
-			$children = $this->childrenForSiteTreeList($page);
+            // Fetch the children for this page
+            $children = $this->childrenForSiteTreeList($page);
 
-			// If there are children, and the page viewed is an descendant of this page
-			if($children && $page->isSection()) {
-				// Recurse down a level, using the children from above as the parameter
-				$subSection = $this->generateSiteTreeList($children, $level + 1);
-			}
+            // If there are children, and the page viewed is an descendant of this page
+            if ($children && $page->isSection()) {
+                // Recurse down a level, using the children from above as the parameter
+                $subSection = $this->generateSiteTreeList($children, $level + 1);
+            }
 
-			// Build the list item using the title and links of this page, classes, and sub-menus
-			$section.= sprintf(
-				static::$list_item_format, 
-				Convert::raw2xml($page->MenuTitle), // The page title
-				Convert::raw2att($page->Link()), // The page link
-				implode(' ', $classes), // The classes added to the list item
-				$subSection // The code for any nested sub-menus
-			);
-		}
+            // Build the list item using the title and links of this page, classes, and sub-menus
+            $section.= sprintf(
+                static::$list_item_format,
+                Convert::raw2xml($page->MenuTitle), // The page title
+                Convert::raw2att($page->Link()), // The page link
+                implode(' ', $classes), // The classes added to the list item
+                $subSection // The code for any nested sub-menus
+            );
+        }
 
-		// Close the container tag and return the whole thing
-		return $section . '</ul>';
-	}
+        // Close the container tag and return the whole thing
+        return $section . '</ul>';
+    }
 
-	/**
-	 * Find all the children for the given page that are set to display in menus.
-	 *
-	 * @return mixed {@link DataList} of children or false
-	 */
-	private function childrenForSiteTreeList($parent) {
-		$children = DataObject::get('SiteTree', sprintf('ParentID = %d AND ShowInMenus = 1', $parent->ID));
+    /**
+     * Find all the children for the given page that are set to display in menus.
+     *
+     * @return mixed {@link DataList} of children or false
+     */
+    private function childrenForSiteTreeList($parent)
+    {
+        $children = DataObject::get('SiteTree', sprintf('ParentID = %d AND ShowInMenus = 1', $parent->ID));
 
-		return $children->count() ? $children : false;
-	}
+        return $children->count() ? $children : false;
+    }
 }
